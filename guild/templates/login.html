@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<section class="center">
+  <h1>⚔ {{ guild_name }}</h1>
+  <p class="muted">For the Horde. Sign in with Discord to see the roster.</p>
+  <a class="btn big" href="{{ url_for('auth.start') }}">Log in with Discord</a>
+</section>
+{% endblock %}

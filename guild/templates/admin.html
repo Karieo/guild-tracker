@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<h1>Admin</h1>
+
+<section class="card">
+  <h2>Settings</h2>
+  <form method="post" action="{{ url_for('admin.save_settings') }}" class="stack">
+    {{ csrf_field() }}
+    <label>Guild name <input name="guild_name" value="{{ s.guild_name }}" maxlength="60" required></label>
+    <label>Faction
+      <select name="faction">
+        {% for f in ('Horde', 'Alliance') %}<option {{ 'selected' if s.faction == f }}>{{ f }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Discord webhook URL <input name="webhook_url" value="{{ s.webhook_url }}" placeholder="Leave blank to use .env"></label>
+    <label>Raid time blocks (one per line, Central) <textarea name="blocks" rows="4">{{ blocks }}</textarea></label>
+    <button class="btn">Save settings</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>All characters</h2>
+  <ul class="plain">
+    {% for c in chars %}
+    <li>
+      <a href="{{ url_for('characters.edit', cid=c.id, **{'from': 'admin'}) }}">
+        <strong style="color: {{ class_colors.get(c.class_name, '#fff') }}">{{ c.name }}</strong></a>
+      <span class="muted">{{ c.owner_name }} · {{ c.class_name }} · L{{ c.level }}{% if c.is_main %} · main{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+
+{% if is_owner %}
+<section class="card">
+  <h2>Officers</h2>
+  <ul class="plain">
+    {% for m in members %}
+    <li class="row-between">
+      <span>{{ m.name }} <span class="badge {{ m.role }}">{{ m.role }}</span></span>
+      {% if m.role != 'owner' %}
+      {% set to = 'member' if m.role == 'officer' else 'officer' %}
+      <form method="post" action="{{ url_for('admin.set_role', user_id=m.id) }}"
+            onsubmit="return confirm('{{ ('Demote ' if to == 'member' else 'Promote ') ~ m.name|e }}{{ ' to member?' if to == 'member' else ' to officer?' }}')">
+        {{ csrf_field() }}<input type="hidden" name="role" value="{{ to }}">
+        <button class="btn small {{ 'danger' if to == 'member' }}">{{ 'Demote' if to == 'member' else 'Promote' }}</button>
+      </form>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Role change log</h2>
+  <ul class="plain small">
+    {% for r in log %}
+    <li>{{ r.changed_at|central }} · {{ r.actor_name }} changed {{ r.target_name }}: {{ r.old_role }} → {{ r.new_role }}</li>
+    {% else %}<li class="muted">No changes yet.</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+<article class="card" id="char-{{ c.id }}">
+  <header class="card-head">
+    <div>
+      <strong class="cname" style="color: {{ class_colors.get(c.class_name, '#fff') }}">{{ c.name }}</strong>
+      {% if c.is_main %}<span class="badge">Main</span>{% endif %}
+      <div class="muted">{{ c.race }} {{ c.class_name }} · {{ c.role }}{% if c.spec_note %} · {{ c.spec_note }}{% endif %}</div>
+    </div>
+    <span class="status status-{{ c.status }}">{{ 'Level 60' if c.status == '60' else c.status|capitalize }}</span>
+  </header>
+
+  <form class="level" hx-post="{{ url_for('characters.level', cid=c.id) }}" hx-target="#char-{{ c.id }}" hx-swap="outerHTML"
+        method="post" action="{{ url_for('characters.level', cid=c.id) }}">
+    {{ csrf_field() }}
+    <button name="delta" value="-1" class="lvl-btn" aria-label="Down one level">−</button>
+    <span class="lvl"><small>Level</small>{{ c.level }}</span>
+    <button name="delta" value="1" class="lvl-btn" aria-label="Up one level">+</button>
+  </form>
+  <div class="bar"><span style="width: {{ (c.level / 60 * 100)|round|int }}%"></span></div>
+  <p class="muted small">Updated {{ c.days_stale }} day{{ '' if c.days_stale == 1 else 's' }} ago</p>
+
+  {% if c.profs %}
+  <p class="chips">{% for p in c.profs %}<span class="chip">{{ p.profession }} {{ p.skill }}</span>{% endfor %}</p>
+  {% endif %}
+
+  <footer class="actions">
+    <a class="btn small" href="{{ url_for('characters.edit', cid=c.id) }}">Edit</a>
+    <form method="post" action="{{ url_for('characters.delete', cid=c.id) }}"
+          onsubmit="return confirm('Delete {{ c.name|e }}? This can\'t be undone.')">
+      {{ csrf_field() }}<button class="btn small danger">Delete</button>
+    </form>
+  </footer>
+</article>

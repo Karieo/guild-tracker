@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}My Characters{% endblock %}
+{% block content %}
+<div class="row-between">
+  <h1>My Characters</h1>
+  <a class="btn" href="{{ url_for('characters.new') }}">+ Add</a>
+</div>
+<div class="grid">
+  {% for c in chars %}{% include "partials/char_card.html" %}
+  {% else %}<p class="muted">No characters yet. Add your main to get on the roster.</p>{% endfor %}
+</div>
+{% endblock %}

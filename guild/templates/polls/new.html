@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}New poll{% endblock %}
+{% block content %}
+<h1>New poll</h1>
+{% for e in errors %}<div class="flash error">{{ e }}</div>{% endfor %}
+<form method="post" class="stack">
+  {{ csrf_field() }}
+  <label>Question <input name="question" maxlength="200" value="{{ v.get('question', '') }}" required></label>
+  <label>Options (one per line) <textarea name="options" rows="5" required>{{ v.get('options', '') }}</textarea></label>
+  <label class="check"><input type="checkbox" name="multi_select" value="1" {{ 'checked' if v.get('multi_select') }}> Allow multiple choices</label>
+  <label>Closes (optional, Central time) <input type="datetime-local" name="closes_at" value="{{ v.get('closes_at', '') }}"></label>
+  <label class="check"><input type="checkbox" name="post_discord" value="1" {{ 'checked' if v.get('post_discord') }}> Post to Discord</label>
+  <button class="btn">Create poll</button>
+</form>
+{% endblock %}

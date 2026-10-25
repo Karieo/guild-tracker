@@ -1,0 +1,30 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_PATH: /data/guild.db
+    volumes:
+      - ./data:/data
+    ports:
+      - "127.0.0.1:8000:8000"   # cloudflared on bastion points at this
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/healthz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  backup:
+    build: ./backup
+    restart: unless-stopped
+    environment:
+      DB_PATH: /data/guild.db
+      BACKUP_DIR: /backups
+      KEEP_DAYS: "14"
+      BACKUP_HOUR: "9"   # UTC hour. 9 = 3-4am Central.
+    volumes:
+      - ./data:/data
+      - ./backups:/backups
+    depends_on:
+      - web

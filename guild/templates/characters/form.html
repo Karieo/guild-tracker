@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit ' ~ char.name if char else 'New character' }}{% endblock %}
+{% block content %}
+<h1>{{ 'Edit ' ~ char.name if char else 'New character' }}</h1>
+{% for e in errors %}<div class="flash error">{{ e }}</div>{% endfor %}
+<form method="post" class="stack">
+  {{ csrf_field() }}
+  <label>Name <input name="name" value="{{ v.get('name', '') }}" maxlength="24" required></label>
+  <div class="two">
+    <label>Class
+      <select name="class_name" required>
+        <option value="">Pick…</option>
+        {% for c in classes %}<option {{ 'selected' if v.get('class_name') == c.name }}>{{ c.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Race
+      <select name="race" required>
+        <option value="">Pick…</option>
+        {% for r in races %}<option {{ 'selected' if v.get('race') == r.name }}>{{ r.name }}</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+  <div class="two">
+    <label>Role
+      <select name="role" required>
+        {% for r in roles %}<option {{ 'selected' if v.get('role') == r }}>{{ r }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Status
+      <select name="status">
+        {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if v.get('status') == s }}>{{ 'Level 60' if s == '60' else s|capitalize }}</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+  <div class="two">
+    <label>Level <input type="number" name="level" min="1" max="60" inputmode="numeric" value="{{ v.get('level', 1) }}"></label>
+    <label>Spec note <input name="spec_note" maxlength="80" value="{{ v.get('spec_note', '') }}" placeholder="e.g. Prot / Fury"></label>
+  </div>
+  <label class="check"><input type="checkbox" name="is_main" value="1" {{ 'checked' if v.get('is_main') }}> This is my main</label>
+
+  <fieldset>
+    <legend>Professions</legend>
+    {% for p in all_professions %}
+    <div class="prof-row">
+      <label class="check"><input type="checkbox" name="profs" value="{{ p.name }}" {{ 'checked' if p.name in profs }}> {{ p.name }}
+        {% if p.kind == 'secondary' %}<small class="muted">(secondary)</small>{% endif %}</label>
+      <input type="number" name="skill-{{ p.name }}" min="0" max="300" inputmode="numeric"
+             value="{{ profs.get(p.name, '') }}" placeholder="0–300" aria-label="{{ p.name }} skill">
+    </div>
+    {% endfor %}
+  </fieldset>
+
+  <label>Notes <textarea name="notes" rows="3" maxlength="500">{{ v.get('notes', '') }}</textarea></label>
+  <div class="actions">
+    <button class="btn">Save</button>
+    <a class="btn secondary" href="{{ url_for('characters.mine') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

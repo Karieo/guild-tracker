@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Poll{% endblock %}
+{% block content %}
+<h1>{{ poll.question }}</h1>
+<p class="muted small">By {{ poll.creator_name }} · {{ 'Open' if open else 'Closed' }}
+  {% if poll.closes_at %}· {{ 'closes' if open else 'closed' }} {{ poll.closes_at|central }}{% endif %}
+  · {{ 'Pick any' if poll.multi_select else 'Pick one' }}</p>
+
+<form method="post" action="{{ url_for('polls.vote', poll_id=poll.id) }}" class="stack">
+  {{ csrf_field() }}
+  {% for o in options %}
+  <div class="card option">
+    <label class="check">
+      {% if open %}<input type="{{ 'checkbox' if poll.multi_select else 'radio' }}" name="option" value="{{ o.id }}" {{ 'checked' if o.id in mine }}>{% endif %}
+      <span>{{ o.label }}{% if not open and o.id in mine %} ✓{% endif %}</span>
+      <b class="right">{{ o.count }}</b>
+    </label>
+    <div class="bar"><span style="width: {{ (o.count / total * 100)|round|int }}%"></span></div>
+    {% if o.voters %}<p class="muted small">{{ o.voters|join(', ') }}</p>{% endif %}
+  </div>
+  {% endfor %}
+  {% if open %}<button class="btn">{{ 'Change vote' if mine else 'Vote' }}</button>{% endif %}
+</form>
+
+{% if open and user.role in ('officer', 'owner') %}
+<form method="post" action="{{ url_for('polls.close', poll_id=poll.id) }}" onsubmit="return confirm('Close this poll?')">
+  {{ csrf_field() }}<button class="btn secondary small">Close poll</button>
+</form>
+{% endif %}
+{% endblock %}

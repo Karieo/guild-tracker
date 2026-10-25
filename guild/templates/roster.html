@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Roster{% endblock %}
+{% block content %}
+<div class="row-between">
+  <h1>Roster</h1>
+  <a class="btn secondary small" href="{{ url_for('roster.index', alts=0 if include_alts else 1) }}">
+    {{ 'Mains only' if include_alts else 'Include alts' }}</a>
+</div>
+<p class="counts">
+  <span><b>{{ counts.get('Tank', 0) }}</b> tanks</span>
+  <span><b>{{ counts.get('Healer', 0) }}</b> healers</span>
+  <span><b>{{ counts.get('DPS', 0) }}</b> DPS</span>
+  <span class="muted">({{ total }} {{ 'characters' if include_alts else 'mains' }})</span>
+</p>
+{% for cls, members in groups %}
+<section class="card">
+  <h2 style="color: {{ class_colors.get(cls, '#fff') }}">{{ cls }} <small class="muted">{{ members|length }}</small></h2>
+  <ul class="plain">
+    {% for c in members %}
+    <li>
+      <strong style="color: {{ class_colors.get(cls, '#fff') }}">{{ c.name }}</strong>
+      {% if include_alts and not c.is_main %}<span class="badge alt">Alt</span>{% endif %}
+      <span class="muted">{{ c.role }}{% if c.spec_note %} ({{ c.spec_note }}){% endif %} · {{ c.race }} · L{{ c.level }} · {{ c.owner_name }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% else %}<p class="muted">Nobody on the roster yet.</p>{% endfor %}
+{% endblock %}

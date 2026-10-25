@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Polls{% endblock %}
+{% block content %}
+<div class="row-between">
+  <h1>Polls</h1>
+  {% if user.role in ('officer', 'owner') %}<a class="btn" href="{{ url_for('polls.new') }}">+ New poll</a>{% endif %}
+</div>
+{% for p in polls %}
+<a class="card link-card" href="{{ url_for('polls.show', poll_id=p.id) }}">
+  <strong>{{ p.question }}</strong>
+  <span class="muted small">{{ 'Open' if p.open else 'Closed' }} · {{ p.voters }} voted · by {{ p.creator_name }}
+    {% if p.closes_at and p.open %}· closes {{ p.closes_at|central }}{% endif %}</span>
+</a>
+{% else %}<p class="muted">No polls yet.</p>{% endfor %}
+{% endblock %}

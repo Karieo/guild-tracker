@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %} · {{ guild_name }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='htmx.min.js') }}" defer></script>
+</head>
+<body{% if user %} hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'{% endif %}>
+{% if user %}
+<header class="top">
+  <a class="brand" href="{{ url_for('index') }}">⚔ {{ guild_name }}</a>
+  <nav>
+    <a href="{{ url_for('characters.mine') }}">Mine</a>
+    <a href="{{ url_for('roster.index') }}">Roster</a>
+    <a href="{{ url_for('leveling.index') }}">Leveling</a>
+    <a href="{{ url_for('professions.index') }}">Professions</a>
+    <a href="{{ url_for('polls.index') }}">Polls</a>
+    <a href="{{ url_for('availability.index') }}">Raid Nights</a>
+    {% if user.role in ('officer', 'owner') %}
+    <a href="{{ url_for('announcements.index') }}">Announce</a>
+    <a href="{{ url_for('admin.index') }}">Admin</a>
+    {% endif %}
+  </nav>
+  <form method="post" action="{{ url_for('auth.logout') }}" class="logout">
+    {{ csrf_field() }}<button class="link" title="Signed in as {{ user.name }}">Log out</button>
+  </form>
+</header>
+{% endif %}
+<main>
+  {% for message in get_flashed_messages() %}<div class="flash">{{ message }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

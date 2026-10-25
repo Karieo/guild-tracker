@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Professions{% endblock %}
+{% block content %}
+<div class="row-between">
+  <h1>Professions</h1>
+  <a class="btn secondary small" href="{{ url_for('professions.index', mains=0 if mains_only else 1) }}">
+    {{ 'Include alts' if mains_only else 'Mains only' }}</a>
+</div>
+{% if gaps %}<div class="flash error">Nobody has: {{ gaps|join(', ') }}</div>{% endif %}
+<p class="muted small">Gap = nobody has it. Overlap = {{ overlap_at }}+ people.</p>
+<table class="prof-table">
+  <thead><tr><th>Profession</th><th>#</th><th>Who</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr class="prof-{{ r.state }}">
+    <td>{{ r.name }}{% if r.kind == 'secondary' %} <small class="muted">2nd</small>{% endif %}
+      {% if r.state == 'gap' %}<span class="badge gap">GAP</span>{% elif r.state == 'overlap' %}<span class="badge overlap">OVERLAP</span>{% endif %}</td>
+    <td>{{ r.people|length }}</td>
+    <td>{% for p in r.people %}<span class="chip" title="{{ p.owner }}"><span style="color: {{ class_colors.get(p.class_name, '#fff') }}">{{ p.name }}</span> {{ p.skill }}</span>{% endfor %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

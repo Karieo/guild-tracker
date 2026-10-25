@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Leveling{% endblock %}
+{% block content %}
+<h1>Leveling</h1>
+<p class="counts"><span><b>{{ at_cap }}</b> of {{ chars|length }} mains at {{ cap }}</span></p>
+{% for c in chars %}
+<div class="card level-card {{ 'stale' if c.days_stale >= stale_days and c.level < cap }}">
+  <div class="row-between">
+    <strong style="color: {{ class_colors.get(c.class_name, '#fff') }}">{{ c.name }}</strong>
+    <span class="lvl-num">{{ c.level }}<small>/{{ cap }}</small></span>
+  </div>
+  <div class="bar"><span style="width: {{ (c.level / cap * 100)|round|int }}%"></span></div>
+  <p class="muted small">{{ c.owner_name }} · {{ c.class_name }} {{ c.role }} ·
+    {% if c.level >= cap %}Raid ready{% else %}updated {{ c.days_stale }} day{{ '' if c.days_stale == 1 else 's' }} ago{% if c.days_stale >= stale_days %} ⚠ stale{% endif %}{% endif %}</p>
+</div>
+{% else %}<p class="muted">No mains yet.</p>{% endfor %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Announcements{% endblock %}
+{% block content %}
+<h1>Announcements</h1>
+<form method="post" class="stack card">
+  {{ csrf_field() }}
+  <label>Title <input name="title" maxlength="200" value="{{ v.get('title', '') }}" required></label>
+  <label>Message <textarea name="body" rows="5" maxlength="3500" required>{{ v.get('body', '') }}</textarea></label>
+  <button class="btn">Post to Discord</button>
+</form>
+<h2>History</h2>
+{% for a in items %}
+<article class="card">
+  <strong>{{ a.title }}</strong>
+  <p class="pre">{{ a.body }}</p>
+  <p class="muted small">{{ a.poster_name }} · {{ a.posted_at|central }}</p>
+</article>
+{% else %}<p class="muted">Nothing posted yet.</p>{% endfor %}
+{% endblock %}

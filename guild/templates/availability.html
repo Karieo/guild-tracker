@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Raid Nights{% endblock %}
+{% block content %}
+<h1>Raid availability</h1>
+<p class="muted small">All times are Central.</p>
+
+<h2>When are you free?</h2>
+<form method="post" action="{{ url_for('availability.save') }}">
+  {{ csrf_field() }}
+  <div class="scroll">
+  <table class="avail">
+    <thead><tr><th></th>{% for d in weekdays %}<th>{{ d }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for b in blocks %}
+    <tr><th>{{ b }}</th>
+      {% for d in weekdays %}
+      <td><label class="cell"><input type="checkbox" name="cell" value="{{ loop.index0 }}|{{ b }}" {{ 'checked' if (loop.index0, b) in mine }} aria-label="{{ d }} {{ b }}"><span></span></label></td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <button class="btn">Save</button>
+</form>
+
+<h2>Guild heatmap</h2>
+<p class="muted small">People free (tanks / healers, going by each person's main).</p>
+<div class="scroll">
+<table class="avail heat">
+  <thead><tr><th></th>{% for d in weekdays %}<th>{{ d }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for b in blocks %}
+  <tr><th>{{ b }}</th>
+    {% for d in weekdays %}
+    {% set s = summary.get((loop.index0, b)) %}
+    <td style="--heat: {{ ((s.total / peak) if s else 0) }}">
+      {% if s %}<b>{{ s.total }}</b><small>{{ s.tanks }}T {{ s.healers }}H</small>{% else %}<span class="muted">–</span>{% endif %}
+    </td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
